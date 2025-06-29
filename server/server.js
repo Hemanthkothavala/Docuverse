@@ -21,13 +21,17 @@ app.use(session({
     secret: 'yourSecretKey',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        sameSite: 'lax'
+    }
 }));
+
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-mongoose.connect('mongodb://localhost:27017/db', {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log("MongoDB Connected"))
@@ -81,7 +85,8 @@ const sharedFileSchema = new mongoose.Schema({
 });
 const SharedFile = mongoose.model('SharedFile', sharedFileSchema);
 
-const FILE_UPLOAD_PATH = path.join(__dirname, '../uploads');
+const FILE_UPLOAD_PATH = path.join('/tmp', 'uploads');
+
 app.use('/uploads', express.static(FILE_UPLOAD_PATH));
 
 const storage = multer.diskStorage({
