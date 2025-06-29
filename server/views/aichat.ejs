@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docuverse - Docu-AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #a78bfa;
+            border-radius: 3px;
+        }
+
+        textarea::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background-color: #a78bfa;
+            border-radius: 3px;
+        }
+
+        .nav-link.active {
+            background-color: #e9d5ff;
+            box-shadow: inset 2px 2px 6px #c084fc;
+            color: #7e22ce;
+            font-weight: bold;
+            border-radius: 10px;
+            transform: translateX(10px);
+            font-size: 20px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out both;
+        }
+
+        .slide-right {
+            margin-left: 14rem;
+            /* Same width as sidebar (56 = 14rem) */
+        }
+    </style>
+</head>
+
+<body class="font-sans text-gray-900 overflow-x-hidden" style="background-color: #210e41;">
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="fixed top-0 left-0 h-full w-56 bg-purple-100 z-40 overflow-y-auto transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="flex items-center justify-between h-20 px-6 bg-purple-300 border-b border-purple-300">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-lg bg-purple-500 text-white flex items-center justify-center font-bold">D
+                </div>
+                <span class="text-lg font-semibold">Docuverse</span>
+            </div>
+            <button id="closeSidebarBtn"
+                class="md:hidden text-purple-700 hover:text-purple-900 text-2xl font-bold">&times;</button>
+        </div>
+
+        <nav class="flex flex-col px-6 py-8 space-y-6">
+            <a href="/afterlogin"
+                class="nav-link flex items-center space-x-3 p-2 rounded hover:bg-purple-200 transition-colors">
+                🏠 <span>Home</span>
+            </a>
+            <a href="/files"
+                class="nav-link flex items-center space-x-3 p-2 rounded hover:bg-purple-200 transition-colors">
+                📄 <span class="font-semibold">Files</span>
+            </a>
+            <a href="/aichat"
+                class="nav-link flex items-center space-x-3 p-2 rounded hover:bg-purple-200 transition-colors">
+                🤖 <span class="font-semibold">Docu-AI</span>
+            </a>
+            <a href="/shared"
+                class="nav-link flex items-center space-x-3 p-2 rounded hover:bg-purple-200 transition-colors active">
+                🔗 <span class="font-semibold">Shared</span>
+            </a>
+        </nav>
+
+        <form action="/logout" method="post" class="block md:hidden px-6 mt-4">
+            <button type="submit"
+                class="w-full bg-red-100 text-red-700 font-semibold px-4 py-2 rounded hover:bg-red-200 transition">
+                Logout
+            </button>
+        </form>
+    </aside>
+
+    <!-- Main -->
+    <main class="w-full transition-all duration-300 ease-in-out md:pl-56">
+
+        <div class="sticky top-0 z-10 bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow-md">
+
+            <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 px-4 py-5">
+
+                <!-- Left: Hamburger button -->
+                <div class="flex items-center">
+                    <button id="hamburgerBtn" class="md:hidden bg-purple-700 text-white p-2 rounded shadow-md">
+                        <svg class="w-6 h-6" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Center: Title and subtitle -->
+                <div class="text-center flex-1 min-w-[200px]">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">
+                        DocuAI – Your Smart Document Assistant
+                    </h1>
+                </div>
+
+                <!-- Right: Logout button -->
+                <form action="/logout" method="post" class="hidden md:block">
+                    <button type="submit"
+                        class="bg-red-100 text-red-700 border border-red-300 px-4 py-2 rounded-lg font-bold hover:bg-red-200 transition whitespace-nowrap">
+                        Logout
+                    </button>
+                </form>
+
+            </div>
+        </div>
+        <% if (!hasStartedChat) { %>
+            <div class="flex-1 flex items-center justify-center" style="margin-top: 400px;">
+                <h1 class="text-4xl font-extrabold text-white text-center select-none">
+                    How May I Help You?
+                </h1>
+            </div>
+            <% } %>
+
+                <% if (error) { %>
+                    <div class="w-full max-w-3xl mx-auto mb-4" style="margin-top: 20px;">
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                            role="alert">
+                            <strong class="font-bold">Error: </strong>
+                            <span>
+                                <%= error %>
+                            </span>
+                        </div>
+                    </div>
+                    <% } %>
+
+                        <div id="chat-history"
+                            class="flex-1 overflow-y-auto space-y-4 w-full max-w-3xl mx-auto mb-28 pr-2"
+                            style="margin-top: 120px;">
+                            <% chatHistory.forEach((item, index)=> {
+                                const isLast = index === chatHistory.length - 1;
+                                %>
+                                <div class="text-right">
+                                    <div class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg max-w-xl">
+                                        <%= item.prompt %>
+                                    </div>
+                                </div>
+                                <div class="text-left">
+                                    <% if (isLast && animate) { %>
+                                        <div class="inline-block bg-gray-200 text-black px-4 py-2 rounded-lg max-w-xl typing-effect"
+                                            data-answer='<%- item.answer.replace(/' /g, "&apos;" ).replace(/\n/g, "\\n"
+                                            ) %>'>
+                                            <span id="typeText"></span><span id="cursor">|</span>
+                                        </div>
+                                        <% } else { %>
+                                            <div
+                                                class="inline-block bg-gray-200 text-black px-4 py-2 rounded-lg max-w-xl prose">
+                                                <%- item.answer %>
+                                            </div>
+                                            <% } %>
+                                </div>
+                                <% }) %>
+                        </div>
+
+                        <div id="chatInput"
+                            class="fixed bottom-0 left-0 md:left-56 right-0 z-20 bg-white px-4 sm:px-6 py-4 transition-all duration-300 ease-in-out"
+                            style="background-color: #210e41; border: none;">
+                            <form action="/aichat" method="POST" class="flex gap-3 w-full max-w-4xl mx-auto">
+                                <textarea name="prompt" placeholder="Ask something..." rows="1"
+                                    class="flex-1 border border-gray-300 rounded-xl py-3 px-5 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition resize-none"
+                                    oninput="autoGrow(this)" required></textarea>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 transition font-semibold h-fit">
+                                    Send
+                                </button>
+                            </form>
+                        </div>
+
+                        </div>
+
+    </main>
+
+    <script>
+        const form = document.querySelector('form[action="/aichat"]');
+        const textarea = form.querySelector('textarea[name="prompt"]');
+
+        textarea.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Prevents newline
+                form.submit();      // Submits the form
+            }
+        });
+        const sidebar = document.getElementById('sidebar');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        const mainContent = document.querySelector('main');
+
+        const chatInput = document.getElementById('chatInput');
+
+        hamburgerBtn?.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            mainContent.classList.add('slide-right');
+
+            chatInput.classList.add('ml-56'); // slides chat input to right
+        });
+
+        closeSidebarBtn?.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mainContent.classList.remove('slide-right');
+
+            chatInput.classList.remove('ml-56'); // reset position
+        });
+
+
+
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.href === location.href) link.classList.add('active');
+        });
+        function highlightCurrentNav() {
+            const links = document.querySelectorAll('.nav-link');
+            const currentPath = window.location.pathname;
+            links.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+        highlightCurrentNav();
+
+        function autoGrow(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 160) + "px";
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.typing-effect');
+            if (!container) return;
+
+            const raw = container.dataset.answer.replace(/\\n/g, '\n');
+            const words = raw.split(' ');
+
+            const typeEl = container.querySelector('#typeText');
+            const cursorEl = container.querySelector('#cursor');
+
+            let i = 0;
+            const blinkInterval = setInterval(() => {
+                cursorEl.style.visibility = cursorEl.style.visibility === 'hidden' ? 'visible' : 'hidden';
+            }, 500);
+
+            const interval = setInterval(() => {
+                if (i < words.length) {
+                    typeEl.innerHTML += words[i] + ' ';
+                    i++;
+                    window.scrollTo({ top: document.body.scrollHeight });
+                } else {
+                    clearInterval(interval);
+                    clearInterval(blinkInterval);
+                    container.innerHTML = marked.parse(raw);
+                    document.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+                }
+            }, 80);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docuverse - Files</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #8b5cf6;
+            border-radius: 10px;
+        }
+
+        .nav-link.active {
+            background-color: #e9d5ff;
+            box-shadow: inset 2px 2px 6px #c084fc;
+            color: #7e22ce;
+            font-weight: bold;
+            border-radius: 10px;
+            transform: translateX(10px);
+            font-size: 20px;
+        }
+
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .slide-right {
+            margin-left: 14rem;
+            /* Same width as sidebar (56 = 14rem) */
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-purple-200 text-gray-900 overflow-x-hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="fixed top-0 left-0 h-full w-56 bg-purple-100 z-40 overflow-y-auto transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="flex items-center justify-between h-20 px-6 bg-purple-300 border-b border-purple-300">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-lg bg-purple-500 text-white flex items-center justify-center font-bold">D
+                </div>
+                <span class="text-lg font-semibold">Docuverse</span>
+            </div>
+            <button id="closeSidebarBtn"
+                class="md:hidden text-purple-700 hover:text-purple-900 text-2xl font-bold">&times;</button>
+        </div>
+
+        <nav class="flex flex-col px-6 py-8 space-y-6">
+            <a href="/afterlogin"
+                class="nav-link flex items-center space-x-3 p-2 rounded hover:bg-purple-200 transition-colors">
+                🏠 <span>Home</span>
+            </a>
+            <a href="/files"
+                class="nav-link flex items-center space-x-3 p-2 rounded hover:bg-purple-200 transition-colors">
+                📄 <span class="font-semibold">Files</span>
+            </a>
+            <a href="/aichat"
+                class="nav-link flex items-center space-x-3 p-2 rounded hover:bg-purple-200 transition-colors">
+                🤖 <span class="font-semibold">Docu-AI</span>
+            </a>
+            <a href="/shared"
+                class="nav-link flex items-center space-x-3 p-2 rounded hover:bg-purple-200 transition-colors">
+
+                🔗 <span class="font-semibold">Shared</span>
+            </a>
+        </nav>
+
+        <form action="/logout" method="post" class="block md:hidden px-6 mt-4">
+            <button type="submit"
+                class="w-full bg-red-100 text-red-700 font-semibold px-4 py-2 rounded hover:bg-red-200 transition">
+                Logout
+            </button>
+        </form>
+    </aside>
+
+
+    <!-- Main -->
+    <main class="p-4 sm:p-8 w-full md:pl-56 transition-all duration-300">
+        <!-- Search bar and user icon -->
+        <div class="max-w-6xl mx-auto mb-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <!-- Hamburger + Search -->
+                <div class="flex items-center w-full gap-3">
+                    <div class="md:hidden">
+                        <button id="hamburgerBtn" class="bg-purple-600 text-white p-2 rounded shadow-md">
+                            <svg class="w-6 h-6" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                    <input type="search" placeholder="Search for Anything!" aria-label="Search for anything"
+                        class="w-full border border-gray-300 rounded-xl py-3 px-5 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                        </div>
+
+                    <!-- Logout Button -->
+                    <!-- Logout for md and up -->
+                    <form action="/logout" method="post" class="hidden md:block">
+                        <button type="submit"
+                            class="bg-red-100 text-red-700 border border-red-300 px-4 py-2 rounded-lg font-bold hover:bg-red-200 transition">
+                            Logout
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Storage Card -->
+            <section class=" p-6 rounded-lg shadow-md mb-8"
+                style="margin-top: 10px; background-image: linear-gradient(to right, rgb(230, 182, 246),rgb(248, 237, 251));">
+                <h2 class="text-lg font-semibold mb-4">📦 Storage Usage</h2>
+
+                <!-- Storage Usage Bar -->
+                <div class="mb-4">
+                    <div class="w-full bg-gray-200 rounded-full h-5 overflow-hidden flex" id="storageBar">
+                        <div class="h-full bg-red-500"
+                            data-percent="<%= ((usage.pdf + usage.docs + usage.others) / maxStorage * 100).toFixed(2) %>">
+                        </div>
+                        <div class="h-full bg-yellow-500"
+                            data-percent="<%= (usage.ppts / maxStorage * 100).toFixed(2) %>"></div>
+                        <div class="h-full bg-blue-500"
+                            data-percent="<%= ((usage.photos + usage.videos) / maxStorage * 100).toFixed(2) %>"></div>
+                        <div class="h-full bg-green-400"
+                            data-percent="<%= (usage.free / maxStorage * 100).toFixed(2) %>"></div>
+                    </div>
+                </div>
+
+                <!-- Legends -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-gray-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 bg-red-500 rounded"></span> PDFs & Docs
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 bg-yellow-500 rounded"></span> PPTs
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 bg-blue-500 rounded"></span> Images & Videos
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-4 h-4 bg-green-400 rounded"></span> Free Space
+                    </div>
+                </div>
+                <br>
+
+
+
+                <!-- Usage Breakdown Text -->
+                <ul class="text-gray-800 space-y-2 text-sm">
+                    <li>📄 <strong>PDF + Docs + Others:</strong>
+                        <%= ((usage.pdf + usage.docs + usage.others) / (1024 * 1024)).toFixed(2) %> MB
+                    </li>
+                    <li>📊 <strong>PPTX Files:</strong>
+                        <%= (usage.ppts / (1024 * 1024)).toFixed(2) %> MB
+                    </li>
+                    <li>🖼️ <strong>Photos & Videos:</strong>
+                        <%= ((usage.photos + usage.videos) / (1024 * 1024)).toFixed(2) %> MB
+                    </li>
+                    <li>📦 <strong>Free Space:</strong>
+                        <%= (usage.free / (1024 * 1024)).toFixed(2) %> MB
+                    </li>
+                    <li>💾 <strong>Total Used:</strong>
+                        <%= (usage.total / (1024 * 1024)).toFixed(2) %> MB
+                    </li>
+                    <li>🧮 <strong>Storage:</strong>
+                        <%= (maxStorage / (1024 * 1024)).toFixed(2) %> MB
+                    </li>
+                </ul>
+            </section>
+
+
+
+            <!-- Review & Delete Section -->
+            <section class="max-w-4xl w-full">
+                <h3 class="text-lg font-bold mb-3">Review &amp; Delete</h3>
+
+                <% if (suggestedFiles.length> 0) { %>
+                    <form action="/delete-suggested" method="POST" onsubmit="return confirm('Delete selected files?')">
+                        <ul class="divide-y border border-gray-200 rounded-lg mb-4">
+                            <% suggestedFiles.forEach(file=> { %>
+                                <li class="p-4 flex items-center justify-between">
+                                    <span>
+                                        <%= file.originalname %> - <%= new Date(file.uploadDate).toLocaleDateString() %>
+                                    </span>
+                                    <input type="checkbox" name="fileIds" value="<%= file._id %>"
+                                        class="form-checkbox h-5 w-5">
+                                </li>
+                                <% }) %>
+                        </ul>
+                        <button type="submit"
+                            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition font-semibold">
+                            Delete Selected
+                        </button>
+                    </form>
+                    <% } else { %>
+                        <p
+                            class="text-center text-gray-400 italic select-none py-12 border border-dashed border-gray-200 rounded-lg">
+                            Any AI suggested files to be deleted will be displayed
+                        </p>
+                        <% } %>
+            </section>
+
+
+    </main>
+
+    <script>
+        document.querySelectorAll('#storageBar > div').forEach(segment => {
+            const percent = parseFloat(segment.dataset.percent || '0');
+            segment.style.width = percent + '%';
+        });
+
+        const sidebar = document.getElementById('sidebar');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        const mainContent = document.querySelector('main');
+
+        hamburgerBtn?.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            mainContent.classList.add('slide-right');
+        });
+
+        closeSidebarBtn?.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mainContent.classList.remove('slide-right');
+        });
+
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.href === location.href) link.classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

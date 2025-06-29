@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docuverse Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .password-toggle {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col lg:flex-row">
+    <!-- Left Side -->
+    <div class="w-full lg:w-1/2 flex flex-col justify-center px-6 lg:px-16 py-12 bg-white">
+        <div class="mb-12 flex items-center gap-3 justify-center lg:justify-start">
+            <div class="bg-purple-400 p-3 rounded-lg shrink-0"
+                style="clip-path: polygon(15% 0%, 85% 0%, 100% 13%, 100% 87%, 85% 100%, 15% 100%, 0% 87%, 0% 13%);">
+                <span class="text-white font-bold text-xl select-none">D</span>
+            </div>
+            <h1 class="text-2xl font-bold select-none">Docuverse</h1>
+        </div>
+
+        <h2 class="text-3xl lg:text-4xl font-extrabold mb-2 select-none text-center lg:text-left">Login</h2>
+        <p class="text-gray-400 mb-8 select-none text-center lg:text-left">Please enter your login details to continue
+        </p>
+
+        <form class="space-y-6" action="/login" method="POST">
+            <input type="email" name="email" placeholder="Email Address" required
+                class="w-full border border-gray-400 rounded-lg px-4 py-3 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                autocomplete="email" />
+            <div class="relative">
+                <input id="passwordInput" name="password" type="password" placeholder="Password" required
+                    class="w-full border border-gray-400 rounded-lg px-4 py-3 pr-12 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                    autocomplete="current-password" />
+            </div>
+
+            <div class="flex items-center justify-between text-sm flex-wrap gap-2">
+                <label class="flex items-center gap-2 select-none">
+                    <input type="checkbox" checked class="form-checkbox h-5 w-5 text-purple-600" />
+                    <span>Keep me logged in</span>
+                </label>
+                <a href="#" class="text-blue-600 hover:underline">Forgot Password?</a>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-purple-600 hover:bg-purple-700 transition text-black font-extrabold py-3 rounded-lg text-lg">
+                Log in
+            </button>
+            <% if(error) { %>
+                <p style="color: red;">
+                    <%= error %>
+                </p>
+                <% } %>
+        </form>
+
+        <p class="mt-6 text-center text-gray-400 select-none">
+            Don&apos;t have an account?
+            <a href="/signup" class="text-blue-600 hover:underline">Create Account</a>
+        </p>
+    </div>
+
+    <!-- Right Side -->
+    <div
+        class="w-full lg:w-1/2 bg-purple-100 p-10 lg:p-20 flex flex-col justify-center items-center text-center select-none">
+        <h1 class="text-3xl lg:text-4xl font-extrabold mb-8 lg:mb-10">Welcome Back!</h1>
+
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-64 h-64 lg:w-[400px] lg:h-[400px]" fill="none"
+            viewBox="0 0 640 512">
+            <g fill="#5B4B8A">
+                <path d="M161 384s8-50 0-65-36-24-42-9-8 40 0 61 42 33 42 33z" stroke="#3B2E70" stroke-width="3" />
+                <path d="M218 465s22-43 8-59-50 1-51 21 47 38 43 38z" stroke="#3B2E70" stroke-width="3" />
+                <path d="M211 325s-16-4-22-1-11.5 10-11.5 10" stroke="#3B2E70" stroke-width="3" />
+            </g>
+            <g fill="#F7F3F7">
+                <path d="M210 386h85v85h-85zM305 464h145v44H305z" />
+            </g>
+            <path fill="#3B2E70" d="M153 431h115v14H153z" />
+            <path fill="#FFE0D4" d="M213 277h20v51h-20z" />
+            <path fill="#7B6E99" d="M307 243h95v70h-95zm10 98h69v35h-69z" />
+            <path fill="#FFE0D4" d="M304 289h60v55h-60z" />
+            <path fill="#F7F3F7" d="M350 130h50v85h-50z" />
+            <path fill="#FFE0D4" d="M330 120h85v85h-85z" />
+            <path fill="#FFD1D7" d="M426 212h70v40h-70z" />
+        </svg>
+    </div>
+
+    <script>
+        // Password toggle script (if toggle element exists)
+        const passwordInput = document.getElementById('passwordInput');
+        const togglePassword = document.getElementById('togglePassword');
+        if (togglePassword) {
+            let passwordVisible = false;
+            togglePassword.addEventListener('click', () => {
+                passwordVisible = !passwordVisible;
+                passwordInput.type = passwordVisible ? 'text' : 'password';
+                togglePassword.innerHTML = passwordVisible
+                    ? `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.956 9.956 0 012.76-4.345M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>`
+                    + `<path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18"/>`
+                    : `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>`
+                    + `<path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+            });
+        }
+    </script>
+</body>
+
+</html>
